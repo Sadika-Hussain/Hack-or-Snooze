@@ -25,7 +25,8 @@ class Story {
 
   getHostName() {
     // UNIMPLEMENTED: complete this function!
-    return "hostname.com";
+    const url = new URL(this.url);
+    return url.hostname;
   }
 }
 
@@ -66,15 +67,28 @@ class StoryList {
     return new StoryList(stories);
   }
 
-  /** Adds story data to API, makes a Story instance, adds it to story list.
+  /** Adds story data to API(auth required), makes a Story instance, adds it to story list.
    * - user - the current instance of User who will post the story
-   * - obj of {title, author, url}
+   * - newStory - obj of {title, author, url}
    *
    * Returns the new Story instance
    */
 
-  async addStory( /* user, newStory */) {
+  async addStory(user, newStory) {
     // UNIMPLEMENTED: complete this function!
+    const token = user.loginToken;
+    const response = await axios({
+      method: "POST",
+      url: `${BASE_URL}/stories`,
+      data: {
+        token,
+        story: newStory
+      },
+    });
+
+    const story = new Story(response.data.story);
+    this.stories.push(story);
+    return story;
   }
 }
 
@@ -191,6 +205,115 @@ class User {
     } catch (err) {
       console.error("loginViaStoredCredentials failed", err);
       return null;
+    }
+  }
+
+  /** Add a story to the user's list of favorites (auth required)*/
+
+  async addNewFavorite(story) {
+    const token = this.loginToken;
+    const storyId = story.storyId;
+    const username = this.username;
+
+    try {
+      await axios({
+        method: "POST",
+        url: `${BASE_URL}/users/${username}/favorites/${storyId}`,
+        data: {
+          token: token
+        }
+      });
+
+      await this.getUserFavorites();
+    } catch (error) {
+      console.error('Error adding favorite: ', error);
+    }
+  }
+
+  /** Remove a story from the user's list of favorites(auth required)*/
+
+  async deleteUserFavorite(story) {
+    const token = this.loginToken;
+    const storyId = story.storyId;
+    const username = this.username;
+
+    try {
+      await axios({
+        method: "DELETE",
+        url: `${BASE_URL}/users/${username}/favorites/${storyId}`,
+        data: {
+          token: token
+        }
+      });
+
+      await this.getUserFavorites();
+    } catch (error) {
+      console.error('Error removing favorite:', error);
+    }
+  }
+
+  /** Get the user's list of favorite stories from API,
+   * assign fetched favorites to current user
+  */
+
+  async getUserFavorites() {
+    let username = this.username;
+    let token = this.loginToken;
+
+    try {
+      const response = await axios({
+        method: "GET",
+        url: `${BASE_URL}/users/${username}/?token=${token}`,
+      });
+
+      const storedFavorites = response.data.user.favorites;
+      this.favorites = storedFavorites.map(fav => new Story(fav));
+    } catch (error) {
+      console.error('Error fetching user favorites:', error);
+    }
+  }
+
+  /**
+   * Fetch the user's own stories from API,
+   * assign fetched story data to current user
+   */
+  async getUserStories() {
+    let username = this.username;
+    let token = this.loginToken;
+
+    try {
+      const response = await axios({
+        method: "GET",
+        url: `${BASE_URL}/users/${username}/?token=${token}`,
+      });
+
+      const userStories = response.data.user.stories;
+      this.ownStories = userStories.map(story => new Story(story));
+    } catch (error) {
+      console.error('Error fetching user stories:', error);
+    }
+  }
+
+  /** Remove a story the user has added,
+   * update the user's stories list after deletion
+  */
+  async removeStory(story) {
+    let storyId = story.storyId;
+    let token = this.loginToken;
+
+    try {
+      await axios({
+        method: "DELETE",
+        url: `${BASE_URL}/stories/${storyId}`,
+        data: {
+          token: token
+        }
+      });
+
+      await this.getUserStories();
+      this.ownStories = this.ownStories.filter(s => s.storyId !== storyId);
+    } catch (error) {
+      console.error('Error removing story:', error);
     }
   }
 }

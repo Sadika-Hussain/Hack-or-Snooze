@@ -10,11 +10,28 @@
   margin: 10px 0;
 }
 
+.stories-list > li > hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid lightgray;
+  margin: 1em 0;
+  padding: 0;
+}
+
 #stories-loading-msg {
   font-weight: bold;
   font-size: 150%;
   margin: 20px 30px;
 }
+
+#my-stories-list,
+#all-favorites-list {
+  list-style: none;
+  margin-left: 0px;
+  padding-left: 1.5em;
+}
+
 
 
 /* Individual stories */
@@ -22,7 +39,7 @@
 .story-link {
   color: black;
   font-size: 0.85rem;
-  font-weight: normal;
+  font-weight: 600;
   margin: 18px 0;
 }
 
@@ -31,9 +48,28 @@
 }
 
 .story-author {
-  margin-left: 2em;
+  display: block;
+  margin-left: 1.5em;
+  margin-top: 0.4em;
+  color: rgb(7, 166, 7);
+  font-weight: 500;
+  font-size: 0.85rem;
 }
 
 .story-user {
   display: block;
+  margin-left: 1.5em;
+  margin-top: 0.4em;
+  color: rgb(255, 166, 0);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/** Story Icons */
+.fa-star, .fa-trash-can-arrow-up {
+  cursor: pointer;
+}
+
+.fa-trash-can-arrow-up:hover {
+  color: red;
 }

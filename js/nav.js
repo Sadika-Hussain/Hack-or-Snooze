@@ -14,6 +14,16 @@ function navAllStories(evt) {
 
 $body.on("click", "#nav-all", navAllStories);
 
+/** Show form to submit a new story on click on "submit" */ 
+
+function showStoryForm() {
+  hidePageComponents();
+  $storyForm.show();
+  $allStoriesList.show();
+}
+
+$navSubmitStory.on("click", showStoryForm);
+
 /** Show login/signup on click on "login" */
 
 function navLoginClick(evt) {
@@ -25,12 +35,16 @@ function navLoginClick(evt) {
 
 $navLogin.on("click", navLoginClick);
 
-/** When a user first logins in, update the navbar to reflect that. */
+/** When a user first logs in, update the navbar to reflect that. */
 
 function updateNavOnLogin() {
   console.debug("updateNavOnLogin");
   $(".main-nav-links").show();
+  $('.nav-separator').css('display', 'inline-block');
   $navLogin.hide();
   $navLogOut.show();
+  $navSubmitStory.show();
+  $navfavorites.show();
+  $navMyStories.show();
   $navUserProfile.text(`${currentUser.username}`).show();
 }
